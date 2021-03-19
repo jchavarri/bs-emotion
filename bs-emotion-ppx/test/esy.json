@@ -2,9 +2,19 @@
   "name": "bs-emotion-ppx-integration-test",
   "version": "0.1.0",
   "dependencies": {
-    "bs-emotion-ppx": "*"
+    "bs-emotion-ppx": "*",
+    "@opam/bucklescript": "*",
+    "@opam/ocamlfind": "1.8.1"
   },
   "resolutions": {
-    "bs-emotion-ppx": "link:../"
+    "bs-emotion-ppx": "link:../",
+    "@opam/bucklescript": "anmonteiro/bucklescript#9e6d8be74a7a4af66a921f4d505ae8e47716b4ec",
+    "ocaml": "anmonteiro/ocaml#72babec0e1796ce322464afc8ef2a0d7125d60cb"
+  },
+  "esy": {
+    "buildsInSource": "unsafe"
+  },
+  "installConfig": {
+    "pnp": false
   }
 }

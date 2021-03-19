@@ -6,16 +6,20 @@
     "release-static": "esy b dune build --root . --only-packages bs-emotion-ppx --ignore-promoted-rules --no-config --profile release-static"
   },
   "esy": {
-    "build": [["dune", "build", "-p", "bs-emotion-ppx"]],
+    "build": "dune build -p bs-emotion-ppx",
+    "install": "esy-installer bs-emotion-ppx.install",
     "buildsInSource": "_build"
   },
   "dependencies": {
-    "ocaml": "~4.6.1000",
-    "@opam/dune": "*",
-    "@opam/reason": "*",
-    "@opam/ocaml-migrate-parsetree": "*"
+    "ocaml": ">= 4.2.0",
+    "@opam/dune": "^2.7.0",
+    "@opam/ppxlib": ">= 0.21.0"
   },
   "devDependencies": {
-    "@opam/merlin": "*"
+    "@opam/merlin": "*",
+    "@opam/ocaml-lsp-server": "*"
+  },
+  "resolutions": {
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#bb438db2f0a5c24ecc518e51bf907f9edb8d80bd"
   }
 }
