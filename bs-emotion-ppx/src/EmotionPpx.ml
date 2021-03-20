@@ -1,10 +1,5 @@
-open Migrate_parsetree
-open Ast_412
-open Ast_mapper
+open Ppxlib
 open Ast_helper
-open Asttypes
-open Parsetree
-open Longident
 
 type contents =
   | Match of expression * case list
@@ -34,171 +29,169 @@ let css className contents =
                 ])) );
     ]
 
-let cssMapper _config _cookies =
-  {
-    default_mapper with
-    structure_item =
-      (fun mapper item ->
-        match item.pstr_desc with
-        | Pstr_value
-            ( Nonrecursive,
-              [
-                {
-                  pvb_pat = { ppat_desc = Ppat_var className };
-                  pvb_expr =
-                    {
-                      pexp_desc =
-                        Pexp_extension
-                          ( { txt = "css" },
-                            PStr
-                              [
-                                {
-                                  pstr_desc =
-                                    Pstr_eval ({ pexp_desc = Pexp_construct ({ txt = Lident "[]" }, None) }, []);
-                                };
-                              ] );
-                    };
-                };
-              ] ) ->
-          Str.value Nonrecursive [ Vb.mk (Pat.var className) (css className EmptyList) ]
-        | Pstr_value
-            ( Nonrecursive,
-              [
-                {
-                  pvb_pat = { ppat_desc = Ppat_var className };
-                  pvb_expr =
-                    {
-                      pexp_desc =
-                        Pexp_extension
-                          ( { txt = "css" },
-                            PStr [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_construct (_, Some exp) }, []) } ] );
-                    };
-                };
-              ] ) ->
-          Str.value Nonrecursive [ Vb.mk (Pat.var className) (css className (ListOf exp)) ]
-        | Pstr_value
-            ( Nonrecursive,
-              [
-                {
-                  pvb_pat = { ppat_desc = Ppat_var className };
-                  pvb_expr =
-                    {
-                      pexp_desc =
-                        Pexp_fun
-                          ( label,
-                            optExp,
-                            pat,
-                            {
-                              pexp_desc =
-                                Pexp_extension
-                                  ( { txt = "css" },
-                                    PStr
-                                      [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_construct (_, Some exp) }, []) } ]
-                                  );
-                            } );
-                    };
-                };
-              ] ) ->
-          Str.value Nonrecursive [ Vb.mk (Pat.var className) (Exp.fun_ label optExp pat (css className (ListOf exp))) ]
-        | Pstr_value
-            ( Nonrecursive,
-              [
-                {
-                  pvb_pat = { ppat_desc = Ppat_var className };
-                  pvb_expr =
-                    {
-                      pexp_desc =
-                        Pexp_fun
-                          ( label1,
-                            optExp1,
-                            pat1,
-                            {
-                              pexp_desc =
-                                Pexp_fun
-                                  ( label2,
-                                    optExp2,
-                                    pat2,
-                                    {
-                                      pexp_desc =
-                                        Pexp_extension
-                                          ( { txt = "css" },
-                                            PStr
-                                              [
-                                                {
-                                                  pstr_desc =
-                                                    Pstr_eval ({ pexp_desc = Pexp_construct (_, Some exp) }, []);
-                                                };
-                                              ] );
-                                    } );
-                            } );
-                    };
-                };
-              ] ) ->
-          Str.value Nonrecursive
-            [
-              Vb.mk (Pat.var className)
-                (Exp.fun_ label1 optExp1 pat1 (Exp.fun_ label2 optExp2 pat2 (css className (ListOf exp))));
-            ]
-        | Pstr_value
-            ( Nonrecursive,
-              [
-                {
-                  pvb_pat = { ppat_desc = Ppat_var className };
-                  pvb_expr =
-                    {
-                      pexp_desc =
-                        Pexp_fun
-                          ( label,
-                            optExp,
-                            pat,
-                            {
-                              pexp_desc =
-                                Pexp_extension
-                                  ( { txt = "css" },
-                                    PStr [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_match (exp, cases) }, []) } ] );
-                            } );
-                    };
-                };
-              ] ) ->
-          Str.value Nonrecursive
-            [ Vb.mk (Pat.var className) (Exp.fun_ label optExp pat (css className (Match (exp, cases)))) ]
-        | Pstr_value
-            ( Nonrecursive,
-              [
-                {
-                  pvb_pat = { ppat_desc = Ppat_var className };
-                  pvb_expr =
-                    {
-                      pexp_desc =
-                        Pexp_fun
-                          ( label1,
-                            optExp1,
-                            pat1,
-                            {
-                              pexp_desc =
-                                Pexp_fun
-                                  ( label2,
-                                    optExp2,
-                                    pat2,
-                                    {
-                                      pexp_desc =
-                                        Pexp_extension
-                                          ( { txt = "css" },
-                                            PStr
-                                              [
-                                                { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_match (exp, cases) }, []) };
-                                              ] );
-                                    } );
-                            } );
-                    };
-                };
-              ] ) ->
-          Str.value Nonrecursive
-            [
-              Vb.mk (Pat.var className)
-                (Exp.fun_ label1 optExp1 pat1 (Exp.fun_ label2 optExp2 pat2 (css className (Match (exp, cases)))));
-            ]
-        | _ -> default_mapper.structure_item mapper item);
-  }
+class mapper =
+  object (self)
+    inherit Ast_traverse.map as super
 
-let () = Ppxlib.Driver.register_transformation "bs-emotion-ppx"
+    method! structure_item item =
+      match item.pstr_desc with
+      | Pstr_value
+          ( Nonrecursive,
+            [
+              {
+                pvb_pat = { ppat_desc = Ppat_var className };
+                pvb_expr =
+                  {
+                    pexp_desc =
+                      Pexp_extension
+                        ( { txt = "css" },
+                          PStr
+                            [
+                              {
+                                pstr_desc = Pstr_eval ({ pexp_desc = Pexp_construct ({ txt = Lident "[]" }, None) }, []);
+                              };
+                            ] );
+                  };
+              };
+            ] ) ->
+        Str.value Nonrecursive [ Vb.mk (Pat.var className) (css className EmptyList) ]
+      | Pstr_value
+          ( Nonrecursive,
+            [
+              {
+                pvb_pat = { ppat_desc = Ppat_var className };
+                pvb_expr =
+                  {
+                    pexp_desc =
+                      Pexp_extension
+                        ( { txt = "css" },
+                          PStr [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_construct (_, Some exp) }, []) } ] );
+                  };
+              };
+            ] ) ->
+        Str.value Nonrecursive [ Vb.mk (Pat.var className) (css className (ListOf exp)) ]
+      | Pstr_value
+          ( Nonrecursive,
+            [
+              {
+                pvb_pat = { ppat_desc = Ppat_var className };
+                pvb_expr =
+                  {
+                    pexp_desc =
+                      Pexp_fun
+                        ( label,
+                          optExp,
+                          pat,
+                          {
+                            pexp_desc =
+                              Pexp_extension
+                                ( { txt = "css" },
+                                  PStr [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_construct (_, Some exp) }, []) } ]
+                                );
+                          } );
+                  };
+              };
+            ] ) ->
+        Str.value Nonrecursive [ Vb.mk (Pat.var className) (Exp.fun_ label optExp pat (css className (ListOf exp))) ]
+      | Pstr_value
+          ( Nonrecursive,
+            [
+              {
+                pvb_pat = { ppat_desc = Ppat_var className };
+                pvb_expr =
+                  {
+                    pexp_desc =
+                      Pexp_fun
+                        ( label1,
+                          optExp1,
+                          pat1,
+                          {
+                            pexp_desc =
+                              Pexp_fun
+                                ( label2,
+                                  optExp2,
+                                  pat2,
+                                  {
+                                    pexp_desc =
+                                      Pexp_extension
+                                        ( { txt = "css" },
+                                          PStr
+                                            [
+                                              {
+                                                pstr_desc = Pstr_eval ({ pexp_desc = Pexp_construct (_, Some exp) }, []);
+                                              };
+                                            ] );
+                                  } );
+                          } );
+                  };
+              };
+            ] ) ->
+        Str.value Nonrecursive
+          [
+            Vb.mk (Pat.var className)
+              (Exp.fun_ label1 optExp1 pat1 (Exp.fun_ label2 optExp2 pat2 (css className (ListOf exp))));
+          ]
+      | Pstr_value
+          ( Nonrecursive,
+            [
+              {
+                pvb_pat = { ppat_desc = Ppat_var className };
+                pvb_expr =
+                  {
+                    pexp_desc =
+                      Pexp_fun
+                        ( label,
+                          optExp,
+                          pat,
+                          {
+                            pexp_desc =
+                              Pexp_extension
+                                ( { txt = "css" },
+                                  PStr [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_match (exp, cases) }, []) } ] );
+                          } );
+                  };
+              };
+            ] ) ->
+        Str.value Nonrecursive
+          [ Vb.mk (Pat.var className) (Exp.fun_ label optExp pat (css className (Match (exp, cases)))) ]
+      | Pstr_value
+          ( Nonrecursive,
+            [
+              {
+                pvb_pat = { ppat_desc = Ppat_var className };
+                pvb_expr =
+                  {
+                    pexp_desc =
+                      Pexp_fun
+                        ( label1,
+                          optExp1,
+                          pat1,
+                          {
+                            pexp_desc =
+                              Pexp_fun
+                                ( label2,
+                                  optExp2,
+                                  pat2,
+                                  {
+                                    pexp_desc =
+                                      Pexp_extension
+                                        ( { txt = "css" },
+                                          PStr
+                                            [ { pstr_desc = Pstr_eval ({ pexp_desc = Pexp_match (exp, cases) }, []) } ]
+                                        );
+                                  } );
+                          } );
+                  };
+              };
+            ] ) ->
+        Str.value Nonrecursive
+          [
+            Vb.mk (Pat.var className)
+              (Exp.fun_ label1 optExp1 pat1 (Exp.fun_ label2 optExp2 pat2 (css className (Match (exp, cases)))));
+          ]
+      | _ -> super#structure_item item
+  end
+
+let structure_mapper s = (new mapper)#structure s
+
+let () = Ppxlib.Driver.register_transformation ~preprocess_impl:structure_mapper "bs-emotion-ppx"
