@@ -1,0 +1,22 @@
+;;;;{BSB GENERATED: NO EDIT
+(subdir ./src
+(rule
+(targets  Test.ast)
+ (deps (:inputs  Test.ml) )
+(action
+ (run bsc.exe  -bs-v 8.5.0 -ppx bs-emotion-ppx  -absname -bs-ast -o %{targets} %{inputs})) )
+ (rule
+(targets  Test.d)
+ (deps (:inputs  Test.ast) )
+(action (run bsb_helper.exe -cwd /home/javier.chavarri/code/bs-emotion/bs-emotion-ppx/test  %{inputs})) )
+ (rule
+(targets  Test.cmj Test.cmi Test.bs.js)
+ (mode (promote (until-clean) (only Test.bs.js)))(deps (:inputs  Test.ast)  (:dep_file Test.d) ../bsconfig.json)
+(action
+ (progn (dynamic-run bsb_parse_depend.exe %{dep_file}) (run bsc.exe -I .  -I /home/javier.chavarri/.esy/3_________________________________________________________/i/opam__s__bucklescript-816fc232/lib/bucklescript  -bs-package-name bs-emotion-ppx-integration-test -bs-package-output commonjs:src:.bs.js -o Test.cmj %{inputs}))) )
+ 
+(alias (name bsb_world)(deps  Test.bs.js)))
+
+
+
+(data_only_dirs node_modules);;;;BSB GENERATED: NO EDIT}
