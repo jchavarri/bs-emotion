@@ -194,4 +194,4 @@ class mapper =
 
 let structure_mapper s = (new mapper)#structure s
 
-let () = Ppxlib.Driver.register_transformation ~preprocess_impl:structure_mapper "bs-emotion-ppx"
+let () = Ppxlib.Driver.register_transformation ~impl:structure_mapper "bs-emotion-ppx"
