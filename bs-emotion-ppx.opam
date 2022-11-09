@@ -1,0 +1,35 @@
+opam-version: "2.0"
+synopsis: "Emotion ppx"
+description: """
+A ppx to get auto-label generated classnames for easier debugging.
+"""
+maintainer: "Ahrefs"
+authors: "Ahrefs"
+license: "MIT"
+homepage: "https://github.com/ahrefs/bs-emotion"
+bug-reports: "https://github.com/ahrefs/bs-emotion/issues"
+depends: [
+  "ocaml" {= "4.14.0"}
+  "dune" {>= "3.0"}
+  "reason" {= "3.8.1"}
+  "ppxlib" {>= "0.27.0"}
+  "ocaml-lsp-server" {dev}
+  "ocamlformat" {dev}
+]
+build: [
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "--promote-install-files=false"
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+  ["dune" "install" "-p" name "--create-install-files" name]
+]
+dev-repo: "git+https://github.com/ahrefs/bs-emotion.git"

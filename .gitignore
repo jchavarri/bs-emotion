@@ -11,6 +11,7 @@ dist/
 bs-emotion-ppx/ppx
 .merlin
 _build
+_opam
 _esy
 _release
 *.byte
